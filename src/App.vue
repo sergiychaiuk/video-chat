@@ -7,6 +7,7 @@
       :rooms="rooms"
       @addRoom="addRoom"
       @deleteRoom="deleteRoom"
+      @checkIn="checkIn"
     />
   </div>
 </template>
@@ -43,6 +44,26 @@ export default {
     },
     deleteRoom: function (payload) {
       db.collection('users').doc(this.user.uid).collection('rooms').doc(payload).delete()
+    },
+    checkIn: function (payload) {
+      const roomRef = db
+        .collection('users')
+        .doc(payload.hostID)
+        .collection('rooms')
+        .doc(payload.roomID)
+
+      roomRef.get().then(doc => {
+        if (doc.exists) {
+          roomRef
+            .collection('attendees')
+            .doc(this.user.uid)
+            .set({
+              displayName: payload.displayName,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => this.$router.push('/'))
+        }
+      })
     }
   },
   mounted() {
