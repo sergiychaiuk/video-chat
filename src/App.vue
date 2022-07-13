@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <Navigation :user="user" @logout="logout" />
-    <router-view :user="user" @logout="logout" @addRoom="addRoom" />
+    <router-view :user="user" @logout="logout" :rooms="rooms" @addRoom="addRoom" />
   </div>
 </template>
 
@@ -15,7 +15,8 @@ export default {
   name: 'App',
   data: function () {
     return {
-      user: null
+      user: null,
+      rooms: []
     }
   },
   methods: {
@@ -39,6 +40,25 @@ export default {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         this.user = user
+        db.collection('users')
+          .doc(this.user.uid)
+          .collection('rooms')
+          .onSnapshot(snapshot => {
+            const snapData = []
+            snapshot.forEach(doc => {
+              snapData.push({
+                id: doc.id,
+                name: doc.data().name
+              })
+            })
+            this.rooms = snapData.sort((a, b) => {
+              if (a.name.toLowerCase() < b.name.toLowerCase()) {
+                return -1
+              } else {
+                return 1
+              }
+            })
+          })
       }
     })
   },
