@@ -1,13 +1,28 @@
 <template>
   <div id="app">
-    <Navigation />
-    <router-view />
+    <Navigation :user="user" />
+    <router-view :user="user" />
   </div>
 </template>
 
 <script>
+import db from './db.js'
 import Navigation from '@/components/Navigation'
 export default {
+  name: 'App',
+  data: function () {
+    return {
+      user: null
+    }
+  },
+  mounted() {
+    db.collection('users')
+      .doc('L4tZgxmlZMWnLEusWtRV')
+      .get()
+      .then(snapshot => {
+        this.user = snapshot.data().name
+      })
+  },
   components: {
     Navigation
   }
