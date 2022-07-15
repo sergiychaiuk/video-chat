@@ -2,7 +2,7 @@
   <div class="container-fluid mt-4">
     <div class="mb-3">
       <span class="mb-0 h2 text-primary">{{ roomName }}</span>
-      <span class="ml-1">
+      <span class="ml-1" v-if="user && user.uid !== hostID">
         Hosted by: <strong class="text-danger">{{ hostDisplayName }}</strong>
       </span>
     </div>
@@ -19,6 +19,7 @@
               class="mr-2"
               title="Approve attendee"
               @click="toggleApproval(attendee.id)"
+              v-if="user && user.uid === hostID"
             >
               <font-awesome-icon icon="user"></font-awesome-icon>
             </a>
@@ -26,11 +27,15 @@
             <span class="mr-2" title="On Air">
               <font-awesome-icon icon="podcast"></font-awesome-icon>
             </span>
-            <span></span>
-            <span class="pl-1">{{ attendee.displayName }}</span>
+            <span
+              class="pl-1"
+              :class="[attendee.id === user.uid ? 'font-weight-bold text-danger' : '']"
+            >
+              {{ attendee.displayName }}
+            </span>
           </li>
         </ul>
-        <div>
+        <div v-if="user && user.uid === $route.params.hostID">
           <h5 class="mt-4">Pending</h5>
           <ul class="list-unstyled">
             <li class="mb-1" v-for="attendee in attendeesPending" :key="attendee.id">
@@ -52,16 +57,22 @@
                   <font-awesome-icon icon="trash"></font-awesome-icon>
                 </a>
               </span>
-              <span class="pl-1">{{ attendee.displayName }}</span>
+              <span
+                class="pl-1"
+                :class="[attendee.id === user.uid ? 'font-weight-bold text-danger' : '']"
+              >
+                {{ attendee.displayName }}
+              </span>
             </li>
           </ul>
         </div>
       </div>
     </div>
     <div v-else>
-      <p class="lead">
-        Hi <strong class="text-primary font-weight-bold"></strong>, you're currently in the room
-        waiting for the owner of the chat to add you to the meeting. Please wait.
+      <p class="lead" v-if="user">
+        Hi <strong class="text-primary font-weight-bold">{{ user.displayName }}</strong
+        >, you're currently in the room waiting for the owner of the chat to add you to the meeting.
+        Please wait.
       </p>
     </div>
   </div>
